@@ -1,0 +1,7 @@
+[project]
+name = "python-reading-list"
+version = "0.1.0"
+description = "Mini-service via Python/FastAPI/ORM"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []

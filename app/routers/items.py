@@ -12,12 +12,12 @@ router = APIRouter(prefix="/items", tags=["Items"])
 
 @router.post("/", response_model=schemas.ItemOut)
 def create_item(item: schemas.ItemCreate, user_id: int = Depends(get_user_id), db: Session = Depends(get_db)):
-    return crud.create_item(db, user_id, item)
+    return crud.item.create(db, user_id, item)
 
 
 @router.get("/{item_id}", response_model=schemas.ItemOut)
 def get_item(item_id: int, user_id: int = Depends(get_user_id), db: Session = Depends(get_db)):
-    item = crud.get_item(db, item_id)
+    item = crud.item.read(db, item_id)
     if not item or item.user_id != user_id:
         raise HTTPException(status_code=404, detail="Item не найден")
     return item
@@ -39,7 +39,7 @@ def list_items(
     order_by: ItemSorting = ItemSorting.CREATED_AT,
     order_by_asc: bool = True,
 ):
-    return crud.get_items(
+    return crud.item.read_many(
         db,
         user_id,
         status=status,
@@ -60,24 +60,25 @@ def list_items(
 def update_item(
     item_id: int, data: schemas.ItemUpdate, user_id: int = Depends(get_user_id), db: Session = Depends(get_db)
 ):
-    item = crud.get_item(db, item_id)
+    item = crud.item.read(db, item_id)
     if not item or item.user_id != user_id:
         raise HTTPException(status_code=404, detail="Item не найден")
-    return crud.update_item(db, item, data)
+    return crud.item.update(db, item, data)
+
+
+# Не вижу в нём смысла, но раз было в ТЗ, то ок
+@router.post("/{item_id}/tags", response_model=schemas.ItemOut)
+def set_tags(item_id: int, tag_ids: list[int], user_id: int = Depends(get_user_id), db: Session = Depends(get_db)):
+    item = crud.item.read(db, item_id)
+    if not item or item.user_id != user_id:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return crud.item.update_tags(db, item, tag_ids)
 
 
 @router.delete("/{item_id}")
 def delete_item(item_id: int, user_id: int = Depends(get_user_id), db: Session = Depends(get_db)):
-    item = crud.get_item(db, item_id)
+    item = crud.item.read(db, item_id)
     if not item or item.user_id != user_id:
         raise HTTPException(status_code=404, detail="Item не найден")
-    crud.delete_item(db, item)
+    crud.common.delete(db, item)
     return {"detail": "Item удалён"}
-
-
-@router.post("/{item_id}/tags", response_model=schemas.ItemOut)
-def set_tags(item_id: int, tag_ids: list[int], user_id: int = Depends(get_user_id), db: Session = Depends(get_db)):
-    item = crud.get_item(db, item_id)
-    if not item or item.user_id != user_id:
-        raise HTTPException(status_code=404, detail="Item not found")
-    return crud.set_item_tags(db, item, tag_ids)

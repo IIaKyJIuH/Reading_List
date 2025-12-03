@@ -9,11 +9,11 @@ class TagCreate(TagBase):
     pass
 
 
+class TagUpdate(TagBase):
+    pass
+
+
 class TagOut(TagBase):
     id: int
 
     model_config = ConfigDict(from_attributes=True)
-
-
-class TagUpdate(TagOut):
-    pass

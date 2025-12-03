@@ -13,10 +13,10 @@ class ItemBase(BaseModel):
     kind: KindEnum
     status: StatusEnum
     priority: PriorityEnum
-    notes: Annotated[str, StringConstraints(min_length=1, strip_whitespace=True)] | None = None
 
 
 class ItemCreate(ItemBase):
+    notes: Annotated[str, StringConstraints(min_length=1, strip_whitespace=True)] | None = None
     tag_ids: list[int] = Field(default_factory=list)
 
 
@@ -34,6 +34,7 @@ class ItemOut(ItemBase):
     user_id: int
     created_at: datetime
     updated_at: datetime
-    tags: list[TagOut] = Field(default_factory=list)
+    tags: list[TagOut] | None = None
+    notes: str | None = None
 
     model_config = ConfigDict(from_attributes=True)

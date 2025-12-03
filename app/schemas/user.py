@@ -12,6 +12,10 @@ class UserCreate(UserBase):
     pass
 
 
+class UserUpdate(UserBase):
+    pass
+
+
 class UserOut(UserBase):
     id: int
     created_at: datetime

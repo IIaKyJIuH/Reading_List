@@ -1,4 +1,4 @@
-from enum import StrEnum
+from enum import IntEnum, StrEnum, auto
 
 
 class KindEnum(StrEnum):
@@ -12,10 +12,10 @@ class StatusEnum(StrEnum):
     DONE = "done"
 
 
-class PriorityEnum(StrEnum):
-    LOW = "low"
-    NORMAL = "normal"
-    HIGH = "high"
+class PriorityEnum(IntEnum):
+    LOW = auto()
+    NORMAL = auto()
+    HIGH = auto()
 
 
 class ItemSorting(StrEnum):

@@ -1,35 +1,33 @@
-# crud.py
-from typing import Sequence
-
 from sqlalchemy.orm import Session
+from varname import nameof
 
 from app.enums import ItemSorting, KindEnum, PriorityEnum, StatusEnum
 
-from . import models, schemas
+from .. import models, schemas
 
 
-def _map_tag_ids_to_tags(db: Session, user_id: int, tag_ids: list[int]) -> Sequence[models.Tag]:
+def _map_tag_ids_to_tags(db: Session, user_id: int, tag_ids: list[int]) -> list[models.Tag]:
     return db.query(models.Tag).filter(models.Tag.id.in_(tag_ids), models.Tag.user_id == user_id).all()
 
 
-def create_item(db: Session, user_id: int, data: schemas.ItemCreate) -> models.Item:
+def create(db: Session, user_id: int, data: schemas.ItemCreate) -> models.Item:
     serialized = data.model_dump()
+    tags = []
     if data.tag_ids:
         tags = _map_tag_ids_to_tags(db, user_id, data.tag_ids)
-        serialized.pop("tag_ids")
-        serialized["tags"] = tags
-    item = models.Item(user_id=user_id, **serialized)
+        serialized.pop(nameof(schemas.ItemUpdate().tag_ids))
+    item = models.Item(user_id=user_id, tags=tags, **serialized)
     db.add(item)
     db.commit()
     db.refresh(item)
     return item
 
 
-def get_item(db: Session, item_id: int) -> models.Item | None:
+def read(db: Session, item_id: int) -> models.Item | None:
     return db.query(models.Item).filter(models.Item.id == item_id).first()
 
 
-def get_items(
+def read_many(
     db: Session,
     user_id: int,
     *,
@@ -70,48 +68,20 @@ def get_items(
     return q.offset(offset).limit(limit).all()
 
 
-def update_item(db: Session, item: models.Item, data: schemas.ItemUpdate) -> models.Item:
-    for field, value in data.model_dump(exclude={"tag_ids"}).items():
+def update(db: Session, item: models.Item, data: schemas.ItemUpdate) -> models.Item:
+    for field, value in data.model_dump(exclude={nameof(schemas.ItemUpdate().tag_ids)}).items():
         setattr(item, field, value)
     if data.tag_ids:
         tags = _map_tag_ids_to_tags(db, item.user_id, data.tag_ids)
-        setattr(item, "tags", tags)
+        item.tags = tags
     db.commit()
     db.refresh(item)
     return item
 
 
-def delete_item(db: Session, item: models.Item) -> None:
-    db.delete(item)
-    db.commit()
-
-
-def create_tag(db: Session, user_id: int, data: schemas.TagCreate) -> models.Tag:
-    tag = models.Tag(user_id=user_id, **data.model_dump())
-    db.add(tag)
-    db.commit()
-    db.refresh(tag)
-    return tag
-
-
-def get_tag(db: Session, user_id: int, tag_id: int) -> models.Tag | None:
-    return db.query(models.Tag).filter(models.Tag.user_id == user_id, models.Tag.id == tag_id).first()
-
-
-def get_tags(db: Session, user_id: int) -> list[models.Tag]:
-    return db.query(models.Tag).filter(models.Tag.user_id == user_id).all()
-
-
-def set_item_tags(db: Session, item: models.Item, tag_ids: list[int]) -> models.Item:
+def update_tags(db: Session, item: models.Item, tag_ids: list[int]) -> models.Item:
     tags = _map_tag_ids_to_tags(db, item.user_id, tag_ids)
     item.tags = tags
     db.commit()
     db.refresh(item)
     return item
-
-
-def update_tag(db: Session, tag: models.Tag, data: schemas.TagOut) -> models.Tag:
-    tag.name = data.name
-    db.commit()
-    db.refresh(tag)
-    return tag

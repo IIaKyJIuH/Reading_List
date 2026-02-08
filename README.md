@@ -19,13 +19,13 @@
 
 ## 1. Требования
 
-* Python **3.13**
+* Python **3.x**
 * Установленный `uv` (я установил себе через `brew install uv`)
 
 Проверка:
 
 ```bash
-python3.13 --version
+python --version
 uv --version
 ```
 

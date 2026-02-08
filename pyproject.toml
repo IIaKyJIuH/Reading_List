@@ -13,19 +13,9 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "mypy>=1.19.0",
     "ruff>=0.14.7",
+    "ty>=0.0.12",
 ]
-
-[tool.mypy]
-python_version = "3.13"
-check_untyped_defs = true
-
-[[tool.mypy.overrides]]
-module = [
-    
-]
-ignore_missing_imports = true
 
 [tool.ruff]
 line-length = 120

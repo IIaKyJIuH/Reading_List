@@ -6,11 +6,12 @@
 
 * Python 3.13
 * FastAPI
-* SQLAlchemy 2.0 (ORM)
+* SQLAlchemy 2.x (ORM)
 * Pydantic v2
 * sqlite3 (по умолчанию)
 * uv (менеджер пакетов)
 * ruff (линтер / форматтер)
+* ty (type checker)
 
 Аутентификация реализована в виде псевдо‑auth через HTTP‑заголовок `X-User-Id`.
 
